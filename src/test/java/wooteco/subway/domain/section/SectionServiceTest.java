@@ -96,7 +96,7 @@ class SectionServiceTest {
         assertEquals(2L, sectionService.addSection(endSection));
         assertEquals(3L, sectionService.addSection(startSection));
 
-        List<Long> stations = sectionService.makeStationsInLine(1L).getStationIds();
+        List<Long> stations = sectionService.createSectionsByLineId(1L).getStationIds();
         assertEquals(4L, stations.get(0));
         assertEquals(1L, stations.get(1));
         assertEquals(2L, stations.get(2));

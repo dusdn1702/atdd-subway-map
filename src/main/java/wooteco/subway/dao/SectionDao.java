@@ -50,16 +50,16 @@ public class SectionDao {
         String sql = "SELECT * FROM SECTION WHERE LINE_ID = ?";
         List<Map<String, Object>> resultList = jdbcTemplate.queryForList(sql, id);
 
-        List<Section> sections1 = new ArrayList<>();
+        List<Section> sections = new ArrayList<>();
 
         for (Map<String, Object> result : resultList) {
             long up_station_id = (long)result.get("UP_STATION_ID");
             long down_station_id = (long)result.get("DOWN_STATION_ID");
             int distance = (int)result.get("DISTANCE");
 
-            sections1.add(new Section(id, up_station_id, down_station_id, distance));
+            sections.add(new Section(id, up_station_id, down_station_id, distance));
         }
-        return Sections.of(sections1);
+        return Sections.of(sections);
     }
 
     public Optional<Section> findSectionBySameUpStation(long lineId, long upStationId) {

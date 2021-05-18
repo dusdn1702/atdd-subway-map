@@ -19,6 +19,9 @@ import wooteco.subway.exception.nosuch.NoSuchStationInLineException;
 @Service
 @Transactional
 public class SectionService {
+    private static final int NOTHING = 0;
+    private static final int BOTH = 2;
+    private static final int ONE = 1;
 
     private final SectionDao sectionDao;
 
@@ -39,9 +42,9 @@ public class SectionService {
         long upStationId = section.getUpStationId();
         long downStationId = section.getDownStationId();
 
-        Sections sections = makeStationsInLine(section.getLineId());
+        Sections sections = createSectionsByLineId(section.getLineId());
 
-        sections.validStations(upStationId, downStationId);
+        sections.checkStationInLine(upStationId, downStationId);
         updateStation(section, upStationId, downStationId, sections);
 
         return sectionDao.save(section);
@@ -67,7 +70,7 @@ public class SectionService {
 
         previousSection.updateValidDistance(newSection);
 
-        if (sectionDao.updateDownStation(previousSection, upStation) != 1) {
+        if (sectionDao.updateDownStation(previousSection, upStation) != ONE) {
             throw new DuplicateSectionException();
         }
     }
@@ -78,13 +81,13 @@ public class SectionService {
 
         originSection.updateValidDistance(newSection);
 
-        if (sectionDao.updateUpStation(originSection, downStation) != 1) {
+        if (sectionDao.updateUpStation(originSection, downStation) != ONE) {
             throw new DuplicateSectionException();
         }
     }
 
     public int deleteSectionByStationId(long lineId, long stationId) {
-        Sections sections = makeStationsInLine(lineId);
+        Sections sections = createSectionsByLineId(lineId);
 
         if (sections.canNotDelete()) {
             throw new ImpossibleDeleteException();
@@ -95,11 +98,11 @@ public class SectionService {
     }
 
     private Integer deleteSection(long stationId, Sections sections, List<Section> sectionsWithStationId) {
-        if (sectionsWithStationId.size() == 0) {
+        if (sectionsWithStationId.size() == NOTHING) {
             throw new NoSuchStationInLineException();
         }
 
-        if (sectionsWithStationId.size() == 2) {
+        if (sectionsWithStationId.size() == BOTH) {
             Section nextSection = sections.getDownSection(stationId);
             Section previousSection = sections.getUpSection(stationId);
             previousSection.addDistance(nextSection);
@@ -107,18 +110,18 @@ public class SectionService {
             return sectionDao.deleteSection(nextSection);
         }
 
-        if (sectionsWithStationId.size() == 1) {
+        if (sectionsWithStationId.size() == ONE) {
             return sectionDao.deleteSection(sectionsWithStationId.get(0));
         }
 
         throw new IllegalArgumentException();
     }
 
-    public Sections makeStationsInLine(long id) {
-        Sections sectionsInLine = sectionDao.findSectionsByLineId(id);
-        if (sectionsInLine.getSections().isEmpty()) {
+    public Sections createSectionsByLineId(long id) {
+        Sections sections = sectionDao.findSectionsByLineId(id);
+        if (sections.getSections().isEmpty()) {
             throw new NoSuchStationInLineException();
         }
-        return sectionsInLine;
+        return sections;
     }
 }

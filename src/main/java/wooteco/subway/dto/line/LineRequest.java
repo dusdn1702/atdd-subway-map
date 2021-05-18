@@ -19,6 +19,7 @@ public class LineRequest {
     private Long downStationId;
 
     @Min(value = 1, message = "거리는 1 이상이어야 합니다")
+    @NotNull(message = "거리를 입력해주세요")
     private int distance;
 
     public LineRequest() {

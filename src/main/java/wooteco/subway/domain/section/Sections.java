@@ -61,7 +61,7 @@ public class Sections {
             .orElseThrow(IllegalArgumentException::new);
     }
 
-    public void validStations(long upStationId, long downStationId) {
+    public void checkStationInLine(long upStationId, long downStationId) {
         if (stationIds.containsAll(Arrays.asList(upStationId, downStationId))) {
             throw new BothStationInLineException();
         }
